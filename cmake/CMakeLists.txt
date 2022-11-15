@@ -1,77 +1,18 @@
-project(libartbase LANGUAGES C CXX ASM)
 cmake_minimum_required(VERSION 3.10)
 
-set(CMAKE_VERBOSE_MAKEFILE ON)
-
-# Require out-of-source builds
-file(TO_CMAKE_PATH "${PROJECT_BINARY_DIR}/CMakeLists.txt" LOC_PATH)
-if(EXISTS "${LOC_PATH}")
-    message(FATAL_ERROR "You cannot build in a source directory (or any directory with a CMakeLists.txt file). Please make a build subdirectory. Feel free to remove CMakeCache.txt and CMakeFiles.")
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    include("./CMakeListsConan.txt")
 endif()
 
-if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
-    message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
-    file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/0.18.1/conan.cmake"
-            "${CMAKE_BINARY_DIR}/conan.cmake"
-            TLS_VERIFY ON)
-endif()
-include(${CMAKE_BINARY_DIR}/conan.cmake)
+project(libartbase LANGUAGES CXX)
 
-conan_cmake_configure(REQUIRES tinyxml2/9.0.0
-                               libarchive/3.6.1
-                      OPTIONS tinyxml2:shared=False
-                      GENERATORS cmake_find_package
-                                 virtualenv
-)
-
-conan_cmake_autodetect(settings)
-conan_cmake_install(PATH_OR_REFERENCE .
-                    PROFILE_HOST ../armv8.profile
-                    PROFILE_BUILD ../build.profile
-                    BUILD missing)
-
-# Set conan environment variables generated using the virtualenv generator
-# This is necessary since for some reason Conan does not correctly set the variables found (e.g. the Android NDK compiler path)
-# A particular attention should be paid to the PATH variable since it is not good to completely overwrite it
-if(EXISTS "${CMAKE_BINARY_DIR}/environment.sh.env")
-    FILE(READ "${CMAKE_BINARY_DIR}/environment.sh.env" _contents)
-    STRING(REGEX REPLACE "\n" ";" _contents "${_contents}")
-    foreach(_line ${_contents})
-        string(REGEX MATCH "([^=]+)=\"(.*)\"" _match ${_line})
-        if(NOT "${_match}" STREQUAL "" AND NOT "${CMAKE_MATCH_1}" STREQUAL "PATH")
-            #message("in ${CMAKE_MATCH_1} = ${CMAKE_MATCH_2}")
-            set(ENV{${CMAKE_MATCH_1}} "${CMAKE_MATCH_2}")
-        endif()
-    endforeach()
-    unset(_contents)
-    unset(_line)
-    unset(_match)
-else()
-    message(FATAL_ERROR "Android NDK environment variables not found!")
-endif()
-
-set(CMAKE_C_COMPILER   $ENV{CC})
-set(CMAKE_CXX_COMPILER $ENV{CXX})
-set(CMAKE_CXX_COMPILER_AR $ENV{AR})
-set(CMAKE_CXX_COMPILER_RANLIB $ENV{RANLIB})
-set(CMAKE_AR           $ENV{AR})
-set(CMAKE_AS           $ENV{AS})
-set(CMAKE_RANLIB       $ENV{RANLIB})
-set(CMAKE_STRIP        $ENV{STRIP})
-set(CMAKE_ADDR2LINE    $ENV{ADDR2LINE})
-set(CMAKE_NM           $ENV{NM})
-set(CMAKE_OBJCOPY      $ENV{OBJCOPY})
-set(CMAKE_OBJDUMP      $ENV{OBJDUMP})
-set(CMAKE_READELF      $ENV{READELF})
-set(CMAKE_LD           $ENV{LD})
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_BINARY_DIR})
+include(FetchContent)
 
 find_package(tinyxml2 MODULE REQUIRED)
 
 FetchContent_Declare(libziparchive-ndk
-                     GIT_REPOSITORY https://github.com/MaDeG/libziparchive-ndk.git
-                     GIT_TAG master
+                     GIT_REPOSITORY git@github.com:MaDeG/libziparchive-ndk.git
+                     GIT_TAG integration
                      GIT_SUBMODULES ""
                      SOURCE_SUBDIR cmake)
 FetchContent_MakeAvailable(libziparchive-ndk)
