@@ -71,10 +71,10 @@ set(LIBARTBASE_SOURCES
     ${LIBARTBASE_ROOT}/base/zip_archive.cc
 )
 
-add_library(LIBARTBASE STATIC ${ANDROID_SOURCES} ${LIBARTBASE_SOURCES})
-target_include_directories(LIBARTBASE PUBLIC ${LIBARTBASE_ROOT} ${tinyxml2_INCLUDE_DIRS})
-target_include_directories(LIBARTBASE PRIVATE ${libziparchive-ndk_SOURCE_DIR}/include)
-target_link_libraries(LIBARTBASE TinyXML)
+add_library(libartbase STATIC ${ANDROID_SOURCES} ${LIBARTBASE_SOURCES})
+target_include_directories(libartbase PUBLIC ${LIBARTBASE_ROOT})
+target_include_directories(libartbase PRIVATE ${libziparchive-ndk_SOURCE_DIR}/include ${tinyxml2_INCLUDE_DIRS})
+target_link_libraries(libartbase TinyXML libziparchive)
 add_compile_definitions(ART_STACK_OVERFLOW_GAP_arm=8192
                         ART_STACK_OVERFLOW_GAP_arm64=8192
                         ART_STACK_OVERFLOW_GAP_riscv64=8192
@@ -87,8 +87,8 @@ add_compile_definitions(ART_STACK_OVERFLOW_GAP_arm=8192
                         ART_BASE_ADDRESS=32768
 )
 
-set_property(TARGET LIBARTBASE PROPERTY CXX_STANDARD 17)
+set_property(TARGET libartbase PROPERTY CXX_STANDARD 17)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_compile_options(LIBARTBASE PRIVATE $<BUILD_INTERFACE:-Wno-unknown-attributes>)
+    target_compile_options(libartbase PRIVATE $<BUILD_INTERFACE:-Wno-unknown-attributes>)
 endif()

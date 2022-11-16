@@ -1,3 +1,5 @@
+#TODO: Switch to the more Conan 2.0 compliant Python way of operating it
+
 if (POLICY CMP0048)
     cmake_policy(SET CMP0048 NEW)
 endif (POLICY CMP0048)
