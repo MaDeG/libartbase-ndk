@@ -8,8 +8,6 @@ project(libartbase LANGUAGES CXX)
 
 include(FetchContent)
 
-find_package(tinyxml2 MODULE REQUIRED)
-
 FetchContent_Declare(libziparchive-ndk
                      GIT_REPOSITORY git@github.com:MaDeG/libziparchive-ndk.git
                      GIT_TAG integration
@@ -17,6 +15,14 @@ FetchContent_Declare(libziparchive-ndk
                      SOURCE_SUBDIR cmake)
 FetchContent_MakeAvailable(libziparchive-ndk)
 FetchContent_GetProperties(libziparchive-ndk)
+
+FetchContent_Declare(libtinyxml2
+                     GIT_REPOSITORY git@github.com:MaDeG/libtinyxml2-ndk.git
+                     GIT_TAG master
+                     GIT_SUBMODULES ""
+                     SOURCE_SUBDIR .)
+FetchContent_MakeAvailable(libtinyxml2)
+FetchContent_GetProperties(libtinyxml2)
 
 set(LIBARTBASE_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../)
 
@@ -73,8 +79,8 @@ set(LIBARTBASE_SOURCES
 
 add_library(libartbase STATIC ${ANDROID_SOURCES} ${LIBARTBASE_SOURCES})
 target_include_directories(libartbase PUBLIC ${LIBARTBASE_ROOT})
-target_include_directories(libartbase PRIVATE ${libziparchive-ndk_SOURCE_DIR}/include ${tinyxml2_INCLUDE_DIRS})
-target_link_libraries(libartbase TinyXML libziparchive)
+target_include_directories(libartbase PRIVATE ${libziparchive-ndk_SOURCE_DIR}/include ${tinyxml2_SOURCE_DIR})
+target_link_libraries(libartbase log tinyxml2 libziparchive)
 add_compile_definitions(ART_STACK_OVERFLOW_GAP_arm=8192
                         ART_STACK_OVERFLOW_GAP_arm64=8192
                         ART_STACK_OVERFLOW_GAP_riscv64=8192
