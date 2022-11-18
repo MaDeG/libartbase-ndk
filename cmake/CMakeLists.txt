@@ -17,6 +17,7 @@ FetchContent_Declare(libziparchive-ndk
 FetchContent_MakeAvailable(libziparchive-ndk)
 FetchContent_GetProperties(libziparchive-ndk)
 
+set(tinyxml2_BUILD_TESTING OFF)
 FetchContent_Declare(libtinyxml2
                      GIT_REPOSITORY git@github.com:MaDeG/libtinyxml2-ndk.git
                      GIT_TAG master
@@ -120,7 +121,7 @@ set(LIBARTBASE_SOURCES ${LIBARTBASE_ROOT}/arch/instruction_set.cc
 )
 
 add_library(libartbase STATIC ${ANDROID_SOURCES} ${LIBARTBASE_SOURCES})
-add_dependencies(libartbase libcap)
+add_dependencies(libartbase libcap-official)
 target_include_directories(libartbase PUBLIC ${LIBARTBASE_ROOT})
 target_include_directories(libartbase PRIVATE ${libziparchive-ndk_SOURCE_DIR}/include
                                               ${tinyxml2_SOURCE_DIR}
