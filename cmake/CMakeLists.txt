@@ -50,18 +50,27 @@ FetchContent_Declare(liblog-ndk
 FetchContent_MakeAvailable(liblog-ndk)
 FetchContent_GetProperties(liblog-ndk)
 
-ExternalProject_Add(libcap-official
-                    GIT_REPOSITORY https://android.googlesource.com/platform/external/libcap.git
-                    GIT_TAG fbfa21662ea4478f4b663a96407f51b8babe4883
-                    GIT_SUBMODULES ""
-                    BUILD_IN_SOURCE 1
-                    BUILD_COMMAND "make"
-                    UPDATE_COMMAND ""
-                    CONFIGURE_COMMAND ""
-                    INSTALL_COMMAND "")
-ExternalProject_Get_Property(libcap-official SOURCE_DIR)
-add_library(libcap STATIC IMPORTED GLOBAL)
-set_property(TARGET libcap PROPERTY IMPORTED_LOCATION ${SOURCE_DIR}/libcap/libcap.a)
+# Used as header only library
+FetchContent_Declare(libcap-official
+                     GIT_REPOSITORY https://android.googlesource.com/platform/external/libcap.git
+                     GIT_TAG fbfa21662ea4478f4b663a96407f51b8babe4883
+                     GIT_SUBMODULES ""
+                     SOURCE_SUBDIR .)
+FetchContent_MakeAvailable(libcap-official)
+FetchContent_GetProperties(libcap-official)
+#ExternalProject_Add(libcap-official
+#                    GIT_REPOSITORY https://android.googlesource.com/platform/external/libcap.git
+#                    GIT_TAG fbfa21662ea4478f4b663a96407f51b8babe4883
+#                    GIT_SUBMODULES ""
+#                    BUILD_IN_SOURCE 1
+#                    #BUILD_COMMAND "make"
+#                    BUILD_COMMAND ""
+#                    UPDATE_COMMAND ""
+#                    CONFIGURE_COMMAND ""
+#                    INSTALL_COMMAND "")
+#ExternalProject_Get_Property(libcap-official SOURCE_DIR)
+#add_library(libcap STATIC IMPORTED GLOBAL)
+#set_property(TARGET libcap PROPERTY IMPORTED_LOCATION ${SOURCE_DIR}/libcap/libcap.a)
 
 set(LIBARTBASE_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../)
 
@@ -121,7 +130,7 @@ set(LIBARTBASE_SOURCES ${LIBARTBASE_ROOT}/arch/instruction_set.cc
 )
 
 add_library(libartbase STATIC ${ANDROID_SOURCES} ${LIBARTBASE_SOURCES})
-add_dependencies(libartbase libcap-official)
+#add_dependencies(libartbase libcap-official)
 target_include_directories(libartbase PUBLIC ${LIBARTBASE_ROOT})
 target_include_directories(libartbase PRIVATE ${libziparchive-ndk_SOURCE_DIR}/include
                                               ${tinyxml2_SOURCE_DIR}
@@ -130,7 +139,7 @@ target_include_directories(libartbase PRIVATE ${libziparchive-ndk_SOURCE_DIR}/in
                                               ${liblog-ndk_SOURCE_DIR}/include
                                               ${libcap-official_SOURCE_DIR}/libcap/include
 )
-target_link_libraries(libartbase log z tinyxml2 libziparchive libartpalette libbase liblog-ndk libcap)
+target_link_libraries(libartbase log z tinyxml2 libziparchive libartpalette libbase liblog-ndk)
 add_compile_definitions(ART_STACK_OVERFLOW_GAP_arm=8192
                         ART_STACK_OVERFLOW_GAP_arm64=8192
                         ART_STACK_OVERFLOW_GAP_riscv64=8192
