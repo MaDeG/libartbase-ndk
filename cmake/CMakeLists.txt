@@ -1,7 +1,23 @@
-cmake_minimum_required(VERSION 3.10)
+if (POLICY CMP0048)
+    cmake_policy(SET CMP0048 NEW)
+endif (POLICY CMP0048)
 
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-    include("./CMakeListsConan.txt")
+cmake_minimum_required(VERSION 3.20)
+
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
+# Require out-of-source builds
+file(TO_CMAKE_PATH "${PROJECT_BINARY_DIR}/CMakeLists.txt" LOC_PATH)
+if(EXISTS "${LOC_PATH}")
+    message(FATAL_ERROR "You cannot build in a source directory (or any directory with a CMakeLists.txt file). Please make a build subdirectory. Feel free to remove CMakeCache.txt and CMakeFiles.")
+endif()
+
+# Set a default build type if none was specified
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to 'Release' as none was specified.")
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
 project(libartbase LANGUAGES CXX)
@@ -11,7 +27,7 @@ include(FetchContent)
 
 FetchContent_Declare(libziparchive-ndk
                      GIT_REPOSITORY git@github.com:MaDeG/libziparchive-ndk.git
-                     GIT_TAG integration
+                     GIT_TAG master
                      GIT_SUBMODULES ""
                      SOURCE_SUBDIR cmake)
 FetchContent_MakeAvailable(libziparchive-ndk)
@@ -58,19 +74,6 @@ FetchContent_Declare(libcap-official
                      SOURCE_SUBDIR .)
 FetchContent_MakeAvailable(libcap-official)
 FetchContent_GetProperties(libcap-official)
-#ExternalProject_Add(libcap-official
-#                    GIT_REPOSITORY https://android.googlesource.com/platform/external/libcap.git
-#                    GIT_TAG fbfa21662ea4478f4b663a96407f51b8babe4883
-#                    GIT_SUBMODULES ""
-#                    BUILD_IN_SOURCE 1
-#                    #BUILD_COMMAND "make"
-#                    BUILD_COMMAND ""
-#                    UPDATE_COMMAND ""
-#                    CONFIGURE_COMMAND ""
-#                    INSTALL_COMMAND "")
-#ExternalProject_Get_Property(libcap-official SOURCE_DIR)
-#add_library(libcap STATIC IMPORTED GLOBAL)
-#set_property(TARGET libcap PROPERTY IMPORTED_LOCATION ${SOURCE_DIR}/libcap/libcap.a)
 
 set(LIBARTBASE_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../)
 
@@ -129,31 +132,30 @@ set(LIBARTBASE_SOURCES ${LIBARTBASE_ROOT}/arch/instruction_set.cc
                        ${LIBARTBASE_ROOT}/base/mem_map_unix.cc
 )
 
-add_library(libartbase STATIC ${ANDROID_SOURCES} ${LIBARTBASE_SOURCES})
-#add_dependencies(libartbase libcap-official)
-target_include_directories(libartbase PUBLIC ${LIBARTBASE_ROOT})
-target_include_directories(libartbase PRIVATE ${libziparchive-ndk_SOURCE_DIR}/include
-                                              ${tinyxml2_SOURCE_DIR}
-                                              ${libartpalette-ndk_SOURCE_DIR}/include
-                                              ${libbase-ndk_SOURCE_DIR}/include
-                                              ${liblog-ndk_SOURCE_DIR}/include
-                                              ${libcap-official_SOURCE_DIR}/libcap/include
+add_library(artbase STATIC ${ANDROID_SOURCES} ${LIBARTBASE_SOURCES})
+target_include_directories(artbase PUBLIC ${LIBARTBASE_ROOT})
+target_include_directories(artbase PRIVATE ${libziparchive-ndk_SOURCE_DIR}/include
+                                           ${tinyxml2_SOURCE_DIR}
+                                           ${libartpalette-ndk_SOURCE_DIR}/include
+                                           ${libbase-ndk_SOURCE_DIR}/include
+                                           ${liblog-ndk_SOURCE_DIR}/include
+                                           ${libcap-official_SOURCE_DIR}/libcap/include
 )
-target_link_libraries(libartbase log z tinyxml2 libziparchive libartpalette libbase liblog-ndk)
-add_compile_definitions(ART_STACK_OVERFLOW_GAP_arm=8192
-                        ART_STACK_OVERFLOW_GAP_arm64=8192
-                        ART_STACK_OVERFLOW_GAP_riscv64=8192
-                        ART_STACK_OVERFLOW_GAP_x86=8192
-                        ART_STACK_OVERFLOW_GAP_x86_64=8192
-                        ART_NDEBUG_OPT_FLAG=-O3
-                        ART_DEFAULT_GC_TYPE=CMC
-                        ART_DEFAULT_COMPACT_DEX_LEVEL=fast
-                        ART_FRAME_SIZE_LIMIT=7400
-                        ART_BASE_ADDRESS=32768
+target_link_libraries(artbase log z tinyxml2 ziparchive artpalette base log-ndk)
+add_compile_definitions(artbase ART_STACK_OVERFLOW_GAP_arm=8192
+                                ART_STACK_OVERFLOW_GAP_arm64=8192
+                                ART_STACK_OVERFLOW_GAP_riscv64=8192
+                                ART_STACK_OVERFLOW_GAP_x86=8192
+                                ART_STACK_OVERFLOW_GAP_x86_64=8192
+                                ART_NDEBUG_OPT_FLAG=-O3
+                                ART_DEFAULT_GC_TYPE=CMC
+                                ART_DEFAULT_COMPACT_DEX_LEVEL=fast
+                                ART_FRAME_SIZE_LIMIT=7400
+                                ART_BASE_ADDRESS=32768
 )
 
-set_property(TARGET libartbase PROPERTY CXX_STANDARD 17)
+set_property(TARGET artbase PROPERTY CXX_STANDARD 17)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_compile_options(libartbase PRIVATE $<BUILD_INTERFACE:-Wno-unknown-attributes>)
+    target_compile_options(artbase PRIVATE $<BUILD_INTERFACE:-Wno-unknown-attributes>)
 endif()
