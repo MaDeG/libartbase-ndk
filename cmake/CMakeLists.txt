@@ -26,7 +26,7 @@ include(ExternalProject)
 include(FetchContent)
 
 FetchContent_Declare(libziparchive-ndk
-                     GIT_REPOSITORY git@github.com:MaDeG/libziparchive-ndk.git
+                     GIT_REPOSITORY https://github.com/MaDeG/libziparchive-ndk.git
                      GIT_TAG master
                      GIT_SUBMODULES ""
                      SOURCE_SUBDIR cmake)
@@ -35,7 +35,7 @@ FetchContent_GetProperties(libziparchive-ndk)
 
 set(tinyxml2_BUILD_TESTING OFF)
 FetchContent_Declare(libtinyxml2
-                     GIT_REPOSITORY git@github.com:MaDeG/libtinyxml2-ndk.git
+                     GIT_REPOSITORY https://github.com/MaDeG/libtinyxml2-ndk.git
                      GIT_TAG master
                      GIT_SUBMODULES ""
                      SOURCE_SUBDIR .)
@@ -43,7 +43,7 @@ FetchContent_MakeAvailable(libtinyxml2)
 FetchContent_GetProperties(libtinyxml2)
 
 FetchContent_Declare(libartpalette-ndk
-                     GIT_REPOSITORY git@github.com:MaDeG/libartpalette-ndk.git
+                     GIT_REPOSITORY https://github.com/MaDeG/libartpalette-ndk.git
                      GIT_TAG master
                      GIT_SUBMODULES ""
                      SOURCE_SUBDIR cmake)
@@ -51,7 +51,7 @@ FetchContent_MakeAvailable(libartpalette-ndk)
 FetchContent_GetProperties(libartpalette-ndk)
 
 FetchContent_Declare(libbase-ndk
-                     GIT_REPOSITORY git@github.com:MaDeG/libbase-ndk.git
+                     GIT_REPOSITORY https://github.com/MaDeG/libbase-ndk.git
                      GIT_TAG master
                      GIT_SUBMODULES ""
                      SOURCE_SUBDIR cmake)
@@ -59,7 +59,7 @@ FetchContent_MakeAvailable(libbase-ndk)
 FetchContent_GetProperties(libbase-ndk)
 
 FetchContent_Declare(liblog-ndk
-                     GIT_REPOSITORY git@github.com:MaDeG/liblog-ndk.git
+                     GIT_REPOSITORY https://github.com/MaDeG/liblog-ndk.git
                      GIT_TAG master
                      GIT_SUBMODULES ""
                      SOURCE_SUBDIR cmake)
